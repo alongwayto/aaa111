@@ -24,6 +24,11 @@ public class AnomalyDetectionServiceImpl implements AnomalyDetectionService {
 
     private static final BigDecimal Z_SCORE_THRESHOLD = BigDecimal.valueOf(2.0);
     private static final double MIN_STD_THRESHOLD = 0.0001D;
+    private static final int RISK_LEVEL_LOW = 1;
+    private static final int RISK_LEVEL_MEDIUM = 2;
+    private static final int RISK_LEVEL_HIGH = 3;
+    private static final int ALERT_LEVEL_MEDIUM = 2;
+    private static final int ALERT_LEVEL_HIGH = 3;
 
     private final DeviceMetricsMapper deviceMetricsMapper;
     private final AlertRecordMapper alertRecordMapper;
@@ -103,14 +108,15 @@ public class AnomalyDetectionServiceImpl implements AnomalyDetectionService {
             metrics.setDiskUsage(latest.getDiskUsage());
             metrics.setTemperature(latest.getTemperature());
             metrics.setAnomalyScore(anomalyScore);
-            metrics.setRiskLevel(anomalyScore.compareTo(BigDecimal.valueOf(3)) >= 0 ? 3 : anomalyScore.compareTo(Z_SCORE_THRESHOLD) >= 0 ? 2 : 1);
+            metrics.setRiskLevel(anomalyScore.compareTo(BigDecimal.valueOf(3)) >= 0 ? RISK_LEVEL_HIGH
+                    : anomalyScore.compareTo(Z_SCORE_THRESHOLD) >= 0 ? RISK_LEVEL_MEDIUM : RISK_LEVEL_LOW);
             deviceMetricsMapper.insert(metrics);
 
             if (anomalyScore.compareTo(Z_SCORE_THRESHOLD) >= 0) {
                 AlertRecord alert = new AlertRecord();
                 alert.setDeviceId(latest.getDeviceId());
                 alert.setAlertType("anomaly");
-                alert.setAlertLevel(anomalyScore.compareTo(BigDecimal.valueOf(3)) >= 0 ? 3 : 2);
+                alert.setAlertLevel(anomalyScore.compareTo(BigDecimal.valueOf(3)) >= 0 ? ALERT_LEVEL_HIGH : ALERT_LEVEL_MEDIUM);
                 alert.setAlertMessage("检测到异常波动，Z-Score=" + anomalyScore);
                 alert.setStatus(0);
                 alertRecordMapper.insert(alert);

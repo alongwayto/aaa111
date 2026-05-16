@@ -18,6 +18,9 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class WorkOrderServiceImpl implements WorkOrderService {
 
+    private static final int DEFAULT_PRIORITY = 2;
+    private static final int STATUS_PENDING = 0;
+
     private final WorkOrderMapper workOrderMapper;
 
     @Override
@@ -29,8 +32,8 @@ public class WorkOrderServiceImpl implements WorkOrderService {
         workOrder.setTitle(workOrderDto.getTitle());
         workOrder.setDescription(workOrderDto.getDescription());
         workOrder.setOrderType(workOrderDto.getOrderType());
-        workOrder.setPriority(workOrderDto.getPriority() == null ? 2 : workOrderDto.getPriority());
-        workOrder.setStatus(0);
+        workOrder.setPriority(workOrderDto.getPriority() == null ? DEFAULT_PRIORITY : workOrderDto.getPriority());
+        workOrder.setStatus(STATUS_PENDING);
         workOrderMapper.insert(workOrder);
         return workOrder.getId();
     }
@@ -38,7 +41,7 @@ public class WorkOrderServiceImpl implements WorkOrderService {
     @Override
     public List<WorkOrder> getPendingOrders() {
         return workOrderMapper.selectList(new LambdaQueryWrapper<WorkOrder>()
-                .eq(WorkOrder::getStatus, 0)
+                .eq(WorkOrder::getStatus, STATUS_PENDING)
                 .orderByDesc(WorkOrder::getCreateTime));
     }
 
@@ -52,7 +55,7 @@ public class WorkOrderServiceImpl implements WorkOrderService {
     @Override
     public Map<String, Object> getWorkOrderStatistics() {
         long total = workOrderMapper.selectCount(new LambdaQueryWrapper<>());
-        long pending = workOrderMapper.selectCount(new LambdaQueryWrapper<WorkOrder>().eq(WorkOrder::getStatus, 0));
+        long pending = workOrderMapper.selectCount(new LambdaQueryWrapper<WorkOrder>().eq(WorkOrder::getStatus, STATUS_PENDING));
         long processing = workOrderMapper.selectCount(new LambdaQueryWrapper<WorkOrder>().eq(WorkOrder::getStatus, 1));
         long completed = workOrderMapper.selectCount(new LambdaQueryWrapper<WorkOrder>().eq(WorkOrder::getStatus, 2));
         long closed = workOrderMapper.selectCount(new LambdaQueryWrapper<WorkOrder>().eq(WorkOrder::getStatus, 3));

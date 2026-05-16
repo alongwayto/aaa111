@@ -44,6 +44,7 @@ public class DataAnalysisServiceImpl implements DataAnalysisService {
         for (int i = 6; i >= 0; i--) {
             LocalDate date = LocalDate.now().minusDays(i);
             dates.add(date.toString());
+            // TODO: replace pseudo trend values with real usage aggregation after telemetry model is finalized.
             values.add((int) (TREND_BASELINE + Math.random() * TREND_FLUCTUATION));
         }
         Map<String, Object> result = new HashMap<>();
