@@ -41,6 +41,14 @@ const routes = [
       { path: 'system/backup', name: 'SystemBackup', component: () => import('@/views/system/backup/index.vue'), meta: { title: '数据备份', icon: 'Upload' } },
       // AI 助手
       { path: 'ai', name: 'AiAssistant', component: () => import('@/views/ai/index.vue'), meta: { title: 'AI助手', icon: 'MagicStick' } },
+      // 智能核心模块
+      { path: 'anomaly-detection', name: 'AnomalyDetection', component: () => import('@/views/intelligence/anomaly/index.vue'), meta: { title: '异常监控', icon: 'Bell' } },
+      { path: 'maintenance', name: 'SmartMaintenance', component: () => import('@/views/intelligence/maintenance/index.vue'), meta: { title: '维护计划', icon: 'Calendar' } },
+      { path: 'analysis', name: 'SmartAnalysis', component: () => import('@/views/intelligence/analysis/index.vue'), meta: { title: '数据分析', icon: 'PieChart' } },
+      { path: 'work-order', name: 'SmartWorkOrder', component: () => import('@/views/intelligence/work-order/index.vue'), meta: { title: '工单管理', icon: 'Tickets' } },
+      { path: 'inventory', name: 'SmartInventory', component: () => import('@/views/intelligence/inventory/index.vue'), meta: { title: '库存管理', icon: 'Box' } },
+      { path: 'chatbot', name: 'SmartChatbot', component: () => import('@/views/intelligence/chatbot/index.vue'), meta: { title: '聊天机器人', icon: 'ChatDotRound' } },
+      { path: 'energy', name: 'SmartEnergy', component: () => import('@/views/intelligence/energy/index.vue'), meta: { title: '能耗分析', icon: 'Lightning' } },
       // 个人信息
       { path: 'profile', name: 'Profile', component: () => import('@/views/profile/index.vue'), meta: { title: '个人信息', hidden: true } },
     ],

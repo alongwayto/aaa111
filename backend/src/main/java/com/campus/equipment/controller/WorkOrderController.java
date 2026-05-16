@@ -15,7 +15,7 @@ import java.util.Map;
  * 工单管理 Controller
  */
 @RestController
-@RequestMapping("/api/v1/work-order")
+@RequestMapping("/v1/work-order")
 @Tag(name = "工单管理", description = "工单相关接口")
 public class WorkOrderController {
 
