@@ -338,3 +338,123 @@ CREATE TABLE `maintenance_cost` (
     KEY `idx_device_id` (`device_id`),
     KEY `idx_cost_date` (`cost_date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='维护成本表';
+
+-- ----------------------------
+-- 智能工单表（AI 模块）
+-- ----------------------------
+CREATE TABLE IF NOT EXISTS `work_order` (
+    `id`          BIGINT       NOT NULL AUTO_INCREMENT,
+    `device_id`   BIGINT       DEFAULT NULL COMMENT '设备ID',
+    `user_id`     BIGINT       DEFAULT NULL COMMENT '创建人ID',
+    `assignee_id` BIGINT       DEFAULT NULL COMMENT '处理人ID',
+    `title`       VARCHAR(200) NOT NULL COMMENT '工单标题',
+    `description` TEXT         DEFAULT NULL COMMENT '工单描述',
+    `order_type`  VARCHAR(50)  DEFAULT NULL COMMENT '工单类型',
+    `priority`    TINYINT      DEFAULT 2 COMMENT '优先级：1低 2中 3高',
+    `status`      TINYINT      DEFAULT 0 COMMENT '状态：0待处理 1处理中 2已完成 3已关闭',
+    `remark`      VARCHAR(500) DEFAULT NULL COMMENT '备注',
+    `create_time` DATETIME     DEFAULT CURRENT_TIMESTAMP,
+    `update_time` DATETIME     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    KEY `idx_user_id` (`user_id`),
+    KEY `idx_assignee_id` (`assignee_id`),
+    KEY `idx_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='智能工单表';
+
+-- ----------------------------
+-- 智能模块核心数据表
+-- ----------------------------
+CREATE TABLE IF NOT EXISTS `device_metrics` (
+    `id`            BIGINT        NOT NULL AUTO_INCREMENT,
+    `device_id`     BIGINT        NOT NULL,
+    `device_code`   VARCHAR(50)   DEFAULT NULL,
+    `cpu_usage`     DECIMAL(6,2)  DEFAULT NULL,
+    `memory_usage`  DECIMAL(6,2)  DEFAULT NULL,
+    `disk_usage`    DECIMAL(6,2)  DEFAULT NULL,
+    `temperature`   DECIMAL(6,2)  DEFAULT NULL,
+    `anomaly_score` DECIMAL(8,2)  DEFAULT NULL,
+    `risk_level`    TINYINT       DEFAULT 1,
+    `create_time`   DATETIME      DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    KEY `idx_dm_device_id` (`device_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='设备性能指标表';
+
+CREATE TABLE IF NOT EXISTS `alert_record` (
+    `id`            BIGINT       NOT NULL AUTO_INCREMENT,
+    `device_id`     BIGINT       NOT NULL,
+    `alert_type`    VARCHAR(50)  NOT NULL,
+    `alert_level`   TINYINT      DEFAULT 1,
+    `alert_message` VARCHAR(500) DEFAULT NULL,
+    `status`        TINYINT      DEFAULT 0,
+    `create_time`   DATETIME     DEFAULT CURRENT_TIMESTAMP,
+    `update_time`   DATETIME     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    KEY `idx_ar_device_id` (`device_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='告警记录表';
+
+CREATE TABLE IF NOT EXISTS `maintenance_plan` (
+    `id`               BIGINT        NOT NULL AUTO_INCREMENT,
+    `device_id`        BIGINT        NOT NULL,
+    `plan_type`        VARCHAR(50)   DEFAULT NULL,
+    `plan_content`     VARCHAR(1000) DEFAULT NULL,
+    `recommended_date` DATE          DEFAULT NULL,
+    `estimated_cost`   DECIMAL(12,2) DEFAULT NULL,
+    `priority`         TINYINT       DEFAULT 2,
+    `status`           TINYINT       DEFAULT 0,
+    `create_time`      DATETIME      DEFAULT CURRENT_TIMESTAMP,
+    `update_time`      DATETIME      DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    KEY `idx_mp_device_id` (`device_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='维护计划表';
+
+CREATE TABLE IF NOT EXISTS `analysis_report` (
+    `id`             BIGINT        NOT NULL AUTO_INCREMENT,
+    `report_name`    VARCHAR(200)  NOT NULL,
+    `report_type`    VARCHAR(50)   DEFAULT NULL,
+    `report_content` LONGTEXT,
+    `file_url`       VARCHAR(500)  DEFAULT NULL,
+    `generated_by`   VARCHAR(50)   DEFAULT NULL,
+    `create_time`    DATETIME      DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='分析报告表';
+
+CREATE TABLE IF NOT EXISTS `inventory_management` (
+    `id`               BIGINT        NOT NULL AUTO_INCREMENT,
+    `item_code`        VARCHAR(100)  NOT NULL,
+    `item_name`        VARCHAR(200)  NOT NULL,
+    `current_stock`    INT           DEFAULT 0,
+    `min_stock`        INT           DEFAULT 0,
+    `predicted_demand` INT           DEFAULT 0,
+    `unit_cost`        DECIMAL(12,2) DEFAULT NULL,
+    `supplier`         VARCHAR(100)  DEFAULT NULL,
+    `status`           TINYINT       DEFAULT 1,
+    `create_time`      DATETIME      DEFAULT CURRENT_TIMESTAMP,
+    `update_time`      DATETIME      DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_im_item_code` (`item_code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='库存管理表';
+
+CREATE TABLE IF NOT EXISTS `chatbot_interaction` (
+    `id`                 BIGINT      NOT NULL AUTO_INCREMENT,
+    `user_id`            BIGINT      DEFAULT NULL,
+    `user_message`       TEXT,
+    `bot_response`       TEXT,
+    `intent`             VARCHAR(100) DEFAULT NULL,
+    `entities`           TEXT,
+    `satisfaction_score` TINYINT      DEFAULT NULL,
+    `create_time`        DATETIME     DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='聊天交互表';
+
+CREATE TABLE IF NOT EXISTS `energy_consumption` (
+    `id`           BIGINT        NOT NULL AUTO_INCREMENT,
+    `device_id`    BIGINT        NOT NULL,
+    `device_name`  VARCHAR(200)  DEFAULT NULL,
+    `energy_used`  DECIMAL(12,2) DEFAULT NULL,
+    `cost`         DECIMAL(12,2) DEFAULT NULL,
+    `stat_date`    DATE          DEFAULT NULL,
+    `warning_level` TINYINT      DEFAULT 1,
+    `create_time`  DATETIME      DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    KEY `idx_ec_device_id` (`device_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='能耗管理表';
