@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 public class AnomalyDetectionServiceImpl implements AnomalyDetectionService {
 
     private static final BigDecimal Z_SCORE_THRESHOLD = BigDecimal.valueOf(2.0);
+    private static final double MIN_STD_THRESHOLD = 0.0001D;
 
     private final DeviceMetricsMapper deviceMetricsMapper;
     private final AlertRecordMapper alertRecordMapper;
@@ -136,7 +137,7 @@ public class AnomalyDetectionServiceImpl implements AnomalyDetectionService {
                 .divide(BigDecimal.valueOf(records.size()), 4, RoundingMode.HALF_UP);
 
         double std = Math.sqrt(variance.doubleValue());
-        if (std <= 0.0001D) {
+        if (std <= MIN_STD_THRESHOLD) {
             return BigDecimal.ZERO;
         }
         return BigDecimal.valueOf(Math.abs(latestCpu.subtract(avg).doubleValue()) / std).setScale(2, RoundingMode.HALF_UP);

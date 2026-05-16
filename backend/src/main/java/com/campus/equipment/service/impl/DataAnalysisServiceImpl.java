@@ -19,6 +19,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class DataAnalysisServiceImpl implements DataAnalysisService {
 
+    private static final int TREND_BASELINE = 60;
+    private static final int TREND_FLUCTUATION = 40;
+
     private final FaultReportMapper faultReportMapper;
     private final EnergyConsumptionMapper energyConsumptionMapper;
     private final AnalysisReportMapper analysisReportMapper;
@@ -41,7 +44,7 @@ public class DataAnalysisServiceImpl implements DataAnalysisService {
         for (int i = 6; i >= 0; i--) {
             LocalDate date = LocalDate.now().minusDays(i);
             dates.add(date.toString());
-            values.add((int) (60 + Math.random() * 40));
+            values.add((int) (TREND_BASELINE + Math.random() * TREND_FLUCTUATION));
         }
         Map<String, Object> result = new HashMap<>();
         result.put("dates", dates);
