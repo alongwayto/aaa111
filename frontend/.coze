@@ -1,0 +1,12 @@
+[project]
+sub_id = "2f582b71"
+name = "frontend"
+requires = ["nodejs-24"]
+project_type = "web"
+
+[preview]
+preview_enable = "enabled"
+
+[dev]
+build = ["pnpm", "run", "build"]
+run = ["pnpm", "run", "preview"]
