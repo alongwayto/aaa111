@@ -94,6 +94,66 @@
 | `/ai/generate-report` | POST | 报告生成 | ADMIN/MAINTAINER |
 | `/ai/status` | GET | 服务状态 | 登录用户 |
 
+## 智能分析模块
+
+### 功能模块
+1. **智能仪表盘**: 综合展示系统健康、待办事项、智能洞察
+2. **智能预警**: 基于规则的实时设备监控和预警
+3. **智能工单**: 基于技能和负载的智能工单分配
+4. **智能健康评估**: 设备健康评分、趋势分析、寿命预测
+5. **智能通知**: 个性化通知订阅和智能推送
+
+### API 端点
+#### 智能仪表盘
+| 端点 | 方法 | 说明 | 权限 |
+|------|------|------|------|
+| `/api/smart/dashboard/data` | GET | 仪表盘数据 | 登录用户 |
+| `/api/smart/dashboard/insights` | GET | 智能洞察 | 登录用户 |
+| `/api/smart/dashboard/todos` | GET | 待办事项 | 登录用户 |
+| `/api/smart/dashboard/health` | GET | 健康概览 | 登录用户 |
+| `/api/smart/dashboard/realtime` | GET | 实时监控 | 登录用户 |
+| `/api/smart/dashboard/today` | GET | 今日概览 | 登录用户 |
+| `/api/smart/dashboard/actions` | GET | 快捷操作 | 登录用户 |
+
+#### 智能预警
+| 端点 | 方法 | 说明 | 权限 |
+|------|------|------|------|
+| `/api/smart/alert/list` | GET | 预警列表 | ADMIN/MAINTAINER |
+| `/api/smart/alert/create` | POST | 创建预警 | ADMIN |
+| `/api/smart/alert/status/{id}` | PUT | 更新状态 | ADMIN/MAINTAINER |
+| `/api/smart/alert/statistics` | GET | 预警统计 | ADMIN/MAINTAINER |
+
+#### 智能工单
+| 端点 | 方法 | 说明 | 权限 |
+|------|------|------|------|
+| `/api/smart/workorder/assign/{faultId}` | POST | 智能分配 | ADMIN/MAINTAINER |
+| `/api/smart/workorder/skills` | GET | 技能评分 | ADMIN/MAINTAINER |
+| `/api/smart/workorder/analysis` | GET | 工单分析 | ADMIN/MAINTAINER |
+| `/api/smart/workorder/predict/{faultId}` | GET | 完成预测 | ADMIN/MAINTAINER |
+| `/api/smart/workorder/scheduling` | GET | 排班建议 | ADMIN/MAINTAINER |
+
+#### 智能健康
+| 端点 | 方法 | 说明 | 权限 |
+|------|------|------|------|
+| `/api/smart/health/score/{deviceCode}` | GET | 健康评分 | ADMIN/MAINTAINER |
+| `/api/smart/health/ranking` | GET | 健康排名 | ADMIN/MAINTAINER |
+| `/api/smart/health/trend/{deviceCode}` | GET | 健康趋势 | ADMIN/MAINTAINER |
+| `/api/smart/health/lifespan/{deviceCode}` | GET | 寿命预测 | ADMIN/MAINTAINER |
+| `/api/smart/health/optimization` | GET | 维护优化 | ADMIN/MAINTAINER |
+| `/api/smart/health/report` | GET | 健康报告 | ADMIN/MAINTAINER |
+| `/api/smart/health/high-risk` | GET | 高风险设备 | ADMIN/MAINTAINER |
+
+#### 智能通知
+| 端点 | 方法 | 说明 | 权限 |
+|------|------|------|------|
+| `/api/smart/notification/list` | GET | 通知列表 | 登录用户 |
+| `/api/smart/notification/unread` | GET | 未读数量 | 登录用户 |
+| `/api/smart/notification/read/{id}` | POST | 标记已读 | 登录用户 |
+| `/api/smart/notification/read-all` | POST | 全部已读 | 登录用户 |
+| `/api/smart/notification/stats` | GET | 通知统计 | 登录用户 |
+| `/api/smart/notification/subscribe` | POST | 订阅通知 | 登录用户 |
+| `/api/smart/notification/generate` | POST | 生成通知 | ADMIN |
+
 ### 配置参数
 ```yaml
 ai:

@@ -41,6 +41,8 @@ const routes = [
       { path: 'system/backup', name: 'SystemBackup', component: () => import('@/views/system/backup/index.vue'), meta: { title: '数据备份', icon: 'Upload' } },
       // AI 助手
       { path: 'ai', name: 'AiAssistant', component: () => import('@/views/ai/index.vue'), meta: { title: 'AI助手', icon: 'MagicStick' } },
+      // 智能分析
+      { path: 'smart', name: 'SmartDashboard', component: () => import('@/views/smart/index.vue'), meta: { title: '智能分析', icon: 'DataBoard' } },
       // 个人信息
       { path: 'profile', name: 'Profile', component: () => import('@/views/profile/index.vue'), meta: { title: '个人信息', hidden: true } },
     ],
