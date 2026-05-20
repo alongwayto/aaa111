@@ -31,19 +31,20 @@
 /workspace/projects/
 ├── frontend/               # Vue 3 前端项目
 │   ├── src/
-│   │   ├── api/           # API 接口 (含 ai.js)
+│   │   ├── api/           # API 接口 (含 ai.js, smart.js)
 │   │   ├── assets/        # 静态资源
 │   │   ├── components/    # 公共组件
+│   │   ├── composables/   # 组合式函数 (含 useRealtime 实时数据)
 │   │   ├── router/        # 路由配置
 │   │   ├── stores/        # Pinia 状态
 │   │   ├── utils/         # 工具函数
-│   │   └── views/         # 页面视图 (含 ai/ 智能助手)
+│   │   └── views/         # 页面视图 (含 ai/ 智能助手, smart/ 智能分析)
 │   ├── package.json
 │   └── vite.config.js
 ├── backend/               # Spring Boot 后端
 │   ├── src/main/java/    # Java 源码
-│   │   └── controller/   # 含 AiController
-│   │   └── service/     # 含 AiService
+│   │   └── controller/   # 含 AiController, Smart*Controller
+│   │   └── service/     # 含 AiService, Smart*Service
 │   ├── src/main/resources/
 │   │   ├── application.yml
 │   │   └── sql/          # 数据库脚本
@@ -241,6 +242,42 @@ mvn spring-boot:run
 
 ### 运行时要求
 - **requires**: `nodejs-24`
+
+## 实时数据功能
+
+### 概述
+系统实现了实时数据更新功能，通过轮询机制实现数据的动态刷新。
+
+### 实时数据服务
+- **文件**: `frontend/src/composables/useRealtime.js`
+- **功能**:
+  - 设备实时状态监控（每 10 秒）
+  - 活跃告警实时推送（每 15 秒）
+  - 工单统计定时更新（每 60 秒）
+  - 新告警浏览器通知
+
+### 页面实时更新
+| 页面 | 更新频率 | 说明 |
+|------|---------|------|
+| 运营驾驶舱 | 30 秒 | 统计数据、图表自动刷新 |
+| 实时监控大屏 | 5 秒 | 设备状态快速刷新 |
+| 智能分析中心 | 30 秒 | 健康评分、洞察自动更新 |
+
+### 使用方式
+```javascript
+import { useRealtimeData } from '@/composables/useRealtime'
+
+// 在组件中使用
+const { overview, devices, alerts, refreshAll } = useRealtimeData({
+  autoStart: true,
+  overviewInterval: 30000,
+  devicesInterval: 10000
+})
+```
+
+### 实时状态指示器
+- 智能分析中心头部显示绿色脉冲点，表示实时更新中
+- 显示最后更新时间
 
 ## 常见问题和预防
 

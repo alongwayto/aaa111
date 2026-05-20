@@ -13,6 +13,10 @@
           </div>
         </div>
         <div class="header-actions">
+          <div class="realtime-indicator">
+            <span class="pulse-dot"></span>
+            <span class="update-text">自动更新中 · {{ lastUpdateTime }}</span>
+          </div>
           <el-button type="primary" @click="refreshInsights">
             <el-icon><Refresh /></el-icon>
             刷新洞察
@@ -278,7 +282,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { getSmartDashboardData, getSmartInsights, getTodoItems } from '@/api/smart'
@@ -298,6 +302,9 @@ const systemHealth = ref({})
 const realtime = ref({})
 const today = ref({})
 const quickActions = ref([])
+const isRealtimeActive = ref(false)
+const lastUpdateTime = ref('--')
+let realtimeTimer = null
 
 const getHealthTagType = (status) => {
   const map = { excellent: 'success', good: 'success', fair: 'warning', warning: 'warning', critical: 'danger' }
@@ -334,9 +341,9 @@ const getPriorityText = (priority) => {
   return map[priority] || priority
 }
 
-const loadDashboardData = async () => {
-  loading.value = true
+const loadDashboardData = async (silent = false) => {
   try {
+    if (!silent) loading.value = true
     const [dashboardRes, insightsRes, todosRes] = await Promise.all([
       getSmartDashboardData(),
       getSmartInsights(),
@@ -358,10 +365,12 @@ const loadDashboardData = async () => {
     if (todosRes.code === 200) {
       todoItems.value = todosRes.data || []
     }
+    
+    lastUpdateTime.value = new Date().toLocaleTimeString()
   } catch (error) {
     console.error('加载智能仪表盘数据失败:', error)
   } finally {
-    loading.value = false
+    if (!silent) loading.value = false
   }
 }
 
@@ -385,7 +394,29 @@ const handleAction = (action) => {
 
 onMounted(() => {
   loadDashboardData()
+  startRealtime()
 })
+
+onUnmounted(() => {
+  stopRealtime()
+})
+
+function startRealtime() {
+  isRealtimeActive.value = true
+  realtimeTimer = setInterval(async () => {
+    await loadDashboardData(true)
+  }, 30000) // 每30秒自动更新
+  console.log('智能仪表盘实时更新已启动')
+}
+
+function stopRealtime() {
+  if (realtimeTimer) {
+    clearInterval(realtimeTimer)
+    realtimeTimer = null
+  }
+  isRealtimeActive.value = false
+  console.log('智能仪表盘实时更新已停止')
+}
 </script>
 
 <style scoped>
@@ -439,6 +470,40 @@ onMounted(() => {
   margin: 4px 0 0;
   font-size: 14px;
   color: rgba(255, 255, 255, 0.85);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.realtime-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+}
+
+.pulse-dot {
+  width: 8px;
+  height: 8px;
+  background: #67C23A;
+  border-radius: 50%;
+  animation: pulse-animation 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-animation {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.2); }
+}
+
+.update-text {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 /* 通用卡片样式 */

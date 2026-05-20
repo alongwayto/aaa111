@@ -192,9 +192,11 @@
 import { computed, nextTick, onMounted, onUnmounted, reactive, ref } from 'vue'
 import * as echarts from 'echarts'
 import { getOperationsDashboard } from '@/api/statistics'
+import { startRealtimePoll, stopRealtimePoll, refreshAll } from '@/composables/useRealtime'
 
 const loading = ref(false)
 const lastUpdated = ref('--')
+const isRealtimeActive = ref(false)
 const healthChartRef = ref()
 const faultChartRef = ref()
 const orderChartRef = ref()
@@ -205,6 +207,7 @@ let healthChart
 let faultChart
 let orderChart
 let costChart
+let realtimeTimer = null
 
 const overview = computed(() => dashboard.overview || {})
 const alerts = computed(() => dashboard.alerts || {})
@@ -291,23 +294,44 @@ onMounted(async () => {
   initCharts()
   await loadDashboard()
   window.addEventListener('resize', resizeCharts)
+  
+  // 启动实时数据轮询（每30秒自动更新）
+  startRealtime()
 })
 
 onUnmounted(() => {
   window.removeEventListener('resize', resizeCharts)
+  stopRealtime()
   ;[healthChart, faultChart, orderChart, costChart].forEach(chart => chart?.dispose())
 })
 
-async function loadDashboard() {
-  loading.value = true
+function startRealtime() {
+  isRealtimeActive.value = true
+  realtimeTimer = setInterval(async () => {
+    await loadDashboard()
+  }, 30000) // 每30秒自动刷新
+  console.log('仪表盘实时更新已启动')
+}
+
+function stopRealtime() {
+  if (realtimeTimer) {
+    clearInterval(realtimeTimer)
+    realtimeTimer = null
+  }
+  isRealtimeActive.value = false
+  console.log('仪表盘实时更新已停止')
+}
+
+async function loadDashboard(silent = false) {
   try {
+    if (!silent) loading.value = true
     const res = await getOperationsDashboard()
     Object.assign(dashboard, createEmptyDashboard(), res.data || {})
     lastUpdated.value = formatFullTime(new Date())
     await nextTick()
     renderCharts()
   } finally {
-    loading.value = false
+    if (!silent) loading.value = false
   }
 }
 
