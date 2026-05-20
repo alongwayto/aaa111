@@ -2,7 +2,7 @@
 
 ## 项目概述
 
-智能校园设备管理系统是一个完整的 B/S 架构应用，用于校园设备的监控、管理、维护和故障处理。
+智能校园设备管理系统是一个完整的 B/S 架构应用，用于校园设备的监控、管理、维护和故障处理。系统集成了 AI 智能助手，提供设备诊断、故障预测、维护建议等智能化服务。
 
 ## 技术栈
 
@@ -23,6 +23,7 @@
 - **数据库**: MySQL 8
 - **构建工具**: Maven
 - **Java 版本**: 11 (兼容 17)
+- **AI 集成**: OkHttp + 豆包大模型
 
 ## 目录结构
 
@@ -30,29 +31,26 @@
 /workspace/projects/
 ├── frontend/               # Vue 3 前端项目
 │   ├── src/
-│   │   ├── api/           # API 接口
+│   │   ├── api/           # API 接口 (含 ai.js)
 │   │   ├── assets/        # 静态资源
 │   │   ├── components/    # 公共组件
 │   │   ├── router/        # 路由配置
 │   │   ├── stores/        # Pinia 状态
 │   │   ├── utils/         # 工具函数
-│   │   └── views/         # 页面视图
+│   │   └── views/         # 页面视图 (含 ai/ 智能助手)
 │   ├── package.json
 │   └── vite.config.js
 ├── backend/               # Spring Boot 后端
 │   ├── src/main/java/    # Java 源码
+│   │   └── controller/   # 含 AiController
+│   │   └── service/     # 含 AiService
 │   ├── src/main/resources/
 │   │   ├── application.yml
-│   │   └── sql/           # 数据库脚本
+│   │   └── sql/          # 数据库脚本
 │   └── pom.xml
 ├── scripts/              # 部署脚本
-│   ├── build.sh          # 部署构建脚本
-│   ├── run.sh            # 部署运行脚本
-│   ├── coze-preview-build.sh
-│   └── coze-preview-run.sh
-├── .mysql-data/           # MySQL 数据目录
-├── DEPLOYMENT.md          # 部署文档
-└── start-*.ps1           # 启动脚本
+├── .mysql-data/          # MySQL 数据目录
+└── DEPLOYMENT.md         # 部署文档
 ```
 
 ## 关键入口
@@ -61,9 +59,11 @@
 - `frontend/src/main.js` - 应用入口
 - `frontend/src/App.vue` - 根组件
 - `frontend/src/router/index.js` - 路由配置
+- `frontend/src/views/ai/index.vue` - AI 智能助手页面
 
 ### 后端入口
 - `backend/src/main/java/com/campus/equipment/EquipmentApplication.java` - 启动类
+- `backend/src/main/java/com/campus/equipment/controller/AiController.java` - AI 控制器
 - `backend/src/main/resources/application.yml` - 配置文件
 
 ### 端口配置
@@ -74,6 +74,36 @@
 | Swagger UI | 8080/api/swagger-ui.html |
 | MySQL | 3307 |
 | 前端预览/部署 | 5000 |
+
+## AI 智能助手
+
+### 功能特性
+1. **智能对话**: 基于大模型的自然语言交互
+2. **设备诊断**: 根据设备代码和症状分析故障原因
+3. **维护建议**: 基于设备状态生成维护计划
+4. **故障预测**: 基于历史数据分析潜在风险
+5. **报告生成**: 自动生成设备运行分析报告
+
+### API 端点
+| 端点 | 方法 | 说明 | 权限 |
+|------|------|------|------|
+| `/ai/chat` | POST | 通用对话 | 登录用户 |
+| `/ai/diagnose` | POST | 设备诊断 | ADMIN/MAINTAINER |
+| `/ai/maintenance-advice` | POST | 维护建议 | ADMIN/MAINTAINER |
+| `/ai/predictive-maintenance` | POST | 故障预测 | ADMIN/MAINTAINER |
+| `/ai/generate-report` | POST | 报告生成 | ADMIN/MAINTAINER |
+| `/ai/status` | GET | 服务状态 | 登录用户 |
+
+### 配置参数
+```yaml
+ai:
+  api:
+    url: ${AI_API_URL:}
+    key: ${AI_API_KEY:}
+    model: ${AI_MODEL:doubao-pro}
+    max-tokens: ${AI_MAX_TOKENS:2000}
+    temperature: ${AI_TEMPERATURE:0.7}
+```
 
 ## 运行与预览
 
@@ -113,6 +143,7 @@ mvn spring-boot:run
 3. **Java 版本**: 后端推荐 JDK 17，兼容 JDK 11
 4. **预览端口**: 平台限制前端预览只能暴露 5000 端口
 5. **部署端口**: 部署服务固定使用 5000 端口
+6. **AI 服务**: 需要配置 AI_API_KEY 环境变量才能使用 AI 功能
 
 ## 预览链路配置
 
@@ -158,3 +189,4 @@ mvn spring-boot:run
 3. **跨域问题**: Vite 开发服务器已配置 `/api` 代理到后端 8080 端口
 4. **JWT 过期**: 默认 token 有效期配置在 `application.yml`
 5. **预览端口冲突**: 5000 端口已被占用时，先清理残留进程
+6. **AI 功能不可用**: 检查 AI_API_KEY 环境变量是否配置正确
