@@ -1,18 +1,22 @@
 package com.campus.equipment.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.campus.equipment.aspect.OperationLog;
 import com.campus.equipment.common.Result;
 import com.campus.equipment.dto.ChangePasswordDTO;
 import com.campus.equipment.dto.LoginDTO;
 import com.campus.equipment.entity.SysUser;
+import com.campus.equipment.mapper.SysUserMapper;
 import com.campus.equipment.service.SysUserService;
 import com.campus.equipment.utils.JwtUtils;
 import com.campus.equipment.vo.UserVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -30,7 +34,9 @@ import java.util.UUID;
 public class AuthController {
 
     private final SysUserService userService;
+    private final SysUserMapper userMapper;
     private final JwtUtils jwtUtils;
+    private final PasswordEncoder passwordEncoder;
 
     @Operation(summary = "用户登录")
     @PostMapping("/login")
@@ -85,5 +91,33 @@ public class AuthController {
     @PostMapping("/logout")
     public Result<Void> logout() {
         return Result.success();
+    }
+
+    @Operation(summary = "初始化设置密码（首次使用）")
+    @PostMapping("/init-password")
+    @OperationLog(module = "认证", operation = "初始化密码")
+    public Result<Void> initPassword(@RequestParam String username, @RequestParam String password) {
+        SysUser user = userMapper.selectOne(new LambdaQueryWrapper<SysUser>().eq(SysUser::getUsername, username));
+        if (user == null) {
+            return Result.fail("用户不存在");
+        }
+        // 检查是否是默认密码或未修改过的密码
+        if (user.getPassword() != null && !user.getPassword().startsWith("$2")) {
+            // 已经是正确的 BCrypt 格式，跳过
+            return Result.fail("密码已经是正确格式，请直接登录");
+        }
+        // 更新密码
+        user.setPassword(passwordEncoder.encode(password));
+        userMapper.updateById(user);
+        return Result.success("密码设置成功，请使用新密码登录");
+    }
+    
+    @Operation(summary = "管理员重置用户密码")
+    @PostMapping("/reset-password/{userId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @OperationLog(module = "认证", operation = "重置用户密码")
+    public Result<Void> resetPassword(@PathVariable Long userId, @RequestParam String newPassword) {
+        userService.resetPassword(userId, newPassword);
+        return Result.success("密码重置成功");
     }
 }
