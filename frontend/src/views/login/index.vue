@@ -102,17 +102,17 @@
           <div class="demo-accounts">
             <p class="demo-title">演示账号</p>
             <div class="demo-list">
-              <div class="demo-item" @click="fillDemo('admin', 'admin123')">
+              <div class="demo-item" @click="fillDemo('admin', 'Admin@2024')">
                 <span class="demo-role">管理员</span>
-                <span class="demo-info">admin / admin123</span>
+                <span class="demo-info">admin / Admin@2024</span>
               </div>
-              <div class="demo-item" @click="fillDemo('maintainer1', 'admin123')">
+              <div class="demo-item" @click="fillDemo('maintainer1', 'Mtn@2024')">
                 <span class="demo-role">维护员</span>
-                <span class="demo-info">maintainer1 / admin123</span>
+                <span class="demo-info">maintainer1 / Mtn@2024</span>
               </div>
-              <div class="demo-item" @click="fillDemo('user1', 'admin123')">
+              <div class="demo-item" @click="fillDemo('user1', 'User@2024')">
                 <span class="demo-role">普通用户</span>
-                <span class="demo-info">user1 / admin123</span>
+                <span class="demo-info">user1 / User@2024</span>
               </div>
             </div>
           </div>
